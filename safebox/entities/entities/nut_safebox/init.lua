@@ -1,8 +1,3 @@
-local PLUGIN = PLUGIN or nut.plugin.list.safebox -- Please don't rename plugin folder else PLUGIN variable will be nil in NS beta
-if (!PLUGIN) then
-	ErrorNoHalt( 'safebox plugin directory may have been changed and thus it causes lua errors. Please name it "safebox"\n' )
-end
-
 include("shared.lua")
 
 AddCSLuaFile("cl_init.lua")
@@ -50,7 +45,7 @@ function ENT:openInv(activator)
 
 		self.receivers[activator] = true
 
-		local data = PLUGIN.charInventoryIDs[char:getID()]
+		local data = SafeboxPlugin.charInventoryIDs[char:getID()]
 
 		if (data) then
 			local invID = data[1]
@@ -73,7 +68,7 @@ function ENT:openInv(activator)
 					:next(function(inventory)
 						if (inventory) then
 							inventory.isSafebox = true
-							PLUGIN:SafeboxInventorySet(inventory)
+							SafeboxPlugin:SafeboxInventorySet(inventory)
 
 							inventory:sync(activator)
 
@@ -111,14 +106,14 @@ function ENT:openInv(activator)
 			local width = 5
 			local height = 3
 
-			if ( nut.inventory && nut.inventory.instance ) then -- Nutscript 1.1 beta
+			if ( nut.inventory && nut.inventory.instance ) then -- Nutscript 1.1 beta and 1.2
 				nut.inventory.instance("grid", {w=width, h=height})
 				:next(function(inventory)
 					inventory.isSafebox = true
-					PLUGIN:SafeboxInventorySet(inventory)
+					SafeboxPlugin:SafeboxInventorySet(inventory)
 
-					PLUGIN.charInventoryIDs[char:getID()] = {inventory:getID(), 0, width, height}
-					PLUGIN:saveStorage()
+					SafeboxPlugin.charInventoryIDs[char:getID()] = {inventory:getID(), 0, width, height}
+					SafeboxPlugin:saveStorage()
 
 					inventory:sync(activator)
 
@@ -141,7 +136,7 @@ function ENT:openInv(activator)
 					inventory.h = height
 					inventory.isSafebox = true
 
-					PLUGIN.charInventoryIDs[char:getID()] = {inventory:getID(), 0, width, height}
+					SafeboxPlugin.charInventoryIDs[char:getID()] = {inventory:getID(), 0, width, height}
 
 					inventory:sync(activator)
 

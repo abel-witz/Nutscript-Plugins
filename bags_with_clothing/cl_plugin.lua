@@ -3,7 +3,7 @@ local PLUGIN = PLUGIN
 local function createBag(player, bagUniqueID)
 	local bagInfo = PLUGIN.bagUniqueIDs[bagUniqueID]
 
-	local bag = ClientsideModel(bagInfo.model, RENDERGROUP_OPAQUE) -- TO DO search best rendergroup
+	local bag = ClientsideModel(bagInfo.model, RENDERGROUP_OPAQUE)
 	bag:SetPos(player:GetPos())
 	bag:SetAngles(player:GetAngles())
 	bag:SetMoveType(MOVETYPE_NONE)
@@ -42,7 +42,7 @@ local function createBag(player, bagUniqueID)
             self.LastDrawState = noDraw
 
 		else
-			self:Remove()	-- Handles disconnection -- TO DO test
+			self:Remove()	-- Handles disconnection
 		end
 
     end

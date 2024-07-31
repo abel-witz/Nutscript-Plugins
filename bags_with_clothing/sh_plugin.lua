@@ -1,5 +1,5 @@
 PLUGIN.name = "Backpacks"
-PLUGIN.author = "John"
+PLUGIN.author = "Abel Witz"
 PLUGIN.desc = "Adds backpacks"
 
 PLUGIN.bagInstances = PLUGIN.bagInstances or {}

@@ -1,28 +1,19 @@
 local BUTTON = {}
-AccessorFunc(BUTTON, "autoSizeToContents", "AutoSizeToContents", FORCE_BOOL)
-BUTTON.autoSizeToContents = true
 
 AccessorFunc(BUTTON, "Selected", "Selected", FORCE_BOOL)
-AccessorFunc(BUTTON, "greyedColor", "GreyedColor", FORCE_BOOL)
-AccessorFunc(BUTTON, "color", "NoGreyedColor", FORCE_BOOL)
+AccessorFunc(BUTTON, "GreyedColor", "GreyedColor", FORCE_BOOL)
+AccessorFunc(BUTTON, "Color", "NoGreyedColor", FORCE_BOOL)
 
 function BUTTON:Init()
 	self:SetFont("Trebuchet24")
 
-	self:SetTextColor( fo.ui.GetHUDColor() )
-	self.greyedColor = self.greyedColor or fo.ui.GetHUDGreyColor()
+	self:SetTextColor( Color(255, 182, 66, 255) )
+	self.GreyedColor = self.GreyedColor or Color(78, 57, 25, 255)
 end
 
 function BUTTON:SetText(text)
     self.BaseClass.SetText(self, text)
-
-    if ( self.autoSizeToContents ) then
-        self:SizeToContents()
-	end
-
-	if ( self.OnTextChanged ) then
-		self:OnTextChanged()
-	end
+	self:SizeToContents()
 end
 
 function BUTTON:Paint(w, h)
@@ -43,10 +34,6 @@ function BUTTON:Paint(w, h)
 end
 
 function BUTTON:Think()
-	if (self.animation) then
-		self.animation:Run()
-	end
-
 	if ( not self.Greyed ) then
 		if ( self.Hovered and not self.CallHover ) then
 			self.CallHover = true
@@ -59,45 +46,13 @@ function BUTTON:Think()
 	self.BaseClass.Think(self)
 end
 
-function BUTTON:FadeIn(speed)
-	self.animation = Derma_Anim("Fade Panel", self, function(panel, animation, delta, data)
-		panel:SetAlpha(delta * 255)
-		
-		alpha = (delta * 255)
-		
-		if (animation.Finished) then
-			self.animation = nil
-		end
-	end)
-
-	if (self.animation) then
-		self.animation:Start(speed)
-	end
-	
-	self:SetVisible(true)
-end
-
-function BUTTON:FadeOut(speed)
-	self.animation = Derma_Anim("Fade Panel", self, function(panel, animation, delta, data)
-		panel:SetAlpha(255 - (delta * 255))
-		
-		if (animation.Finished) then
-			self.animation = nil
-		end
-	end)
-	
-	if (self.animation) then
-		self.animation:Start(speed)
-	end
-end
-
 function BUTTON:SetGreyed(state)
 	self.Greyed = state
 
 	if ( state ) then
-		self:SetTextColor( self.greyedColor )
+		self:SetTextColor( self.GreyedColor )
 	else
-		self:SetTextColor( self.color )
+		self:SetTextColor( self.Color )
 	end
 end
 
@@ -124,4 +79,4 @@ function BUTTON:OnHover()
 	surface.PlaySound("forp/ui_menu_focus.wav")
 end
 
-vgui.Register("forpButton", BUTTON, "DButton")
+vgui.Register("lockpickingButton", BUTTON, "DButton")

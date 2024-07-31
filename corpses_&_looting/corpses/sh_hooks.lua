@@ -1,3 +1,11 @@
+local Entity = FindMetaTable("Entity")
+
+function Entity:IsCorpse()
+
+	return self:GetNW2Bool("isLootCorpse")
+
+end
+
 function PLUGIN:EyeTrace(client)
 
 	local data = {}
@@ -6,13 +14,5 @@ function PLUGIN:EyeTrace(client)
 	data.endpos = data.start + client:GetAimVector()*80
 
 	return util.TraceLine(data).Entity
-
-end
-
-local Entity = FindMetaTable("Entity")
-
-function Entity:IsCorpse()
-
-	return self:GetNW2Bool("isLootCorpse")
 
 end

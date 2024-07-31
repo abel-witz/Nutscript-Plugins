@@ -1,5 +1,3 @@
-local PLUGIN = PLUGIN
-
 ENT.Type = "anim"
 ENT.PrintName = "Safebox"
 ENT.Category = "NutScript"

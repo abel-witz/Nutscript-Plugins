@@ -1,8 +1,8 @@
 local PLUGIN = PLUGIN
 
-
+-----------------------
 --[[ Loot creation ]]--
-
+-----------------------
 function PLUGIN:OnCorpseCreated(corpse, victim, char)
 
 	local victimInventory = char:getInv()
@@ -31,7 +31,7 @@ end
 
 function PLUGIN:CreateInventory(victim, victimInventory, corpse, width, height)
 
-	if ( nut.inventory && nut.inventory.instance ) then -- Nutscript 1.1 beta
+	if ( nut.inventory && nut.inventory.instance ) then -- Nutscript 1.1 beta and 1.2
 		nut.inventory.instance("grid", {w = width, h = height})
 			:next(function(inventory)
 				if (IsValid(corpse)) then
@@ -63,7 +63,7 @@ function PLUGIN:CreateInventory(victim, victimInventory, corpse, width, height)
 					corpse:Remove()
 				end
 			end)
-	elseif ( nut.item.newInv ) then
+	elseif ( nut.item.newInv ) then -- Nutscript 1.1
 		nut.item.newInv(0, "corpse", function(inventory)
 			inventory.w = width
 			inventory.h = height
@@ -98,7 +98,7 @@ end
 function PLUGIN:TransferInventory(fromPlayer, from, to)
 	local fromChar = fromPlayer:getChar()
 
-	if (nut.version == "2.0") then
+	if (nut.version) then
 		
 		for k, v in pairs(from:getItems()) do
 			if ( fromPlayer and v:getData("equip") ) then
@@ -151,8 +151,9 @@ function PLUGIN:TransferMoney(victim, corpse)
 
 end
 
+------------------------
 --[[ Corpse opening ]]--
-
+------------------------
 function PLUGIN:RegSearcher(corpse, client)
 
 	if ( not corpse.Searchers ) then
@@ -212,7 +213,7 @@ function PLUGIN:OpenCorpse(corpse, client)
 
 end
 
--- Stared action to open the inventory of a corpse
+-- Open corpse loot
 netstream.Hook("lootOpen", function(client)
 
 	if ( not IsValid(client) ) then return end
@@ -241,8 +242,9 @@ netstream.Hook("lootOpen", function(client)
 end)
 
 
+--------------------------
 --[[ Money management ]]--
-
+--------------------------
 function PLUGIN:ShareCorpseMoney(corpse)
 
 	local searchers = corpse.Searchers

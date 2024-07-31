@@ -1,6 +1,6 @@
 local PLUGIN = PLUGIN
 
--- Make player loot on death
+-- Create player corpse on death
 function PLUGIN:DoPlayerDeath( victim, attacker, dmg )
 
 	local char = victim:getChar()
@@ -19,7 +19,7 @@ function PLUGIN:DoPlayerDeath( victim, attacker, dmg )
 
 end
 
--- Disable player's default corpses
+-- Disable default game corpses
 function PLUGIN:PlayerDeath( victim, inflictor, attacker )
 
 	local OldRagdoll = victim:GetRagdollEntity()
@@ -27,7 +27,7 @@ function PLUGIN:PlayerDeath( victim, inflictor, attacker )
 
 end
 
--- Aplly victim movement on corpse
+-- Apply victim movement on corpse
 function PLUGIN:SetupBones(corpse, victim)
 
 	local victim_vel = victim:GetVelocity() / 5

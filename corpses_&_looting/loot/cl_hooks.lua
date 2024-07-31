@@ -1,7 +1,8 @@
 local PLUGIN = PLUGIN
 
---[[ Vars management ]]--
-
+-------------------
+--[[ Variables ]]--
+-------------------
 local corpses_vars = {
 	"Entity",
 	"Inventory",
@@ -20,8 +21,9 @@ function PLUGIN:EraseVars()
 	end
 end
 
+------------------------
 --[[ Loot interface ]]--
-
+------------------------
 PLUGIN.nextTrace = PLUGIN.nextTrace or 0
 -- Request corpse opening to server when pressing E on a corpse
 function PLUGIN:KeyPress(_, key)
@@ -112,7 +114,7 @@ local function depositMoney(panel)
 end
 
 -- Display loot panel
-function PLUGIN:DisplayInventoryNut1_1_beta()
+function PLUGIN:DisplayInventoryNut()
 	local char = LocalPlayer():getChar()
 	if (!char) then return end
 
@@ -335,7 +337,7 @@ function PLUGIN:DisplayInventoryNut1_1()
 	PLUGIN.localInvPanel:CenterVertical()
 end
 
--- Stared action to open the inventory of a corpse
+-- Open corpse loot
 netstream.Hook("lootOpen", function(invId, money)
 
 	local corpse = PLUGIN:GetCurEntity()
@@ -345,8 +347,8 @@ netstream.Hook("lootOpen", function(invId, money)
 
 		PLUGIN:SetCurInventory(inventory)
 
-		if (nut.version == "2.0") then
-			PLUGIN:DisplayInventoryNut1_1_beta()
+		if (nut.version) then
+			PLUGIN:DisplayInventoryNut()
 		else
 			PLUGIN:DisplayInventoryNut1_1()
 		end

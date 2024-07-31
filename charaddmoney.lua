@@ -1,5 +1,5 @@
 PLUGIN.name = "Add money"
-PLUGIN.author = "github.com/John1344"
+PLUGIN.author = "Abel Witz"
 PLUGIN.desc = "Adds /charaddmoney command"
 
 nut.command.add("charaddmoney", {

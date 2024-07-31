@@ -1,7 +1,8 @@
 local PLUGIN = PLUGIN
+SafeboxPlugin = PLUGIN
 
 PLUGIN.name = "Safebox"
-PLUGIN.author = "John (base from Cheesenut)"
+PLUGIN.author = "Abel Witz with code from Chessnut"
 PLUGIN.desc = "Allows to store precious items forever"
 
 nut.util.include("sv_storage.lua")
@@ -170,18 +171,18 @@ if (CLIENT) then
 		PLUGIN.widthdrawButton:SetText(L"safeboxWithdraw")
 		PLUGIN.widthdrawButton.DoClick = widthdrawMoney
 
-		-- Allow the inventory panels to close.
+		-- Allow the inventory panels to be closed.
 		localInvPanel:ShowCloseButton(true)
 		storageInvPanel:ShowCloseButton(true)
 
-		-- Put the two panels, side by side, in the middle.
+		-- Put the two panels, side by side, in the center.
 		local extraWidth = (storageInvPanel:GetWide() + PADDING) / 2
 		localInvPanel:Center()
 		storageInvPanel:Center()
 		localInvPanel.x = localInvPanel.x + extraWidth
 		storageInvPanel:MoveLeftOf(localInvPanel, PADDING)
 
-		-- Signal that the user left the inventory if either closes.
+		-- Tell the server if the panels get closed
 		local firstToRemove = true
 		localInvPanel.oldOnRemove = localInvPanel.OnRemove
 		storageInvPanel.oldOnRemove = storageInvPanel.OnRemove
@@ -203,7 +204,7 @@ if (CLIENT) then
 		storageInvPanel.OnRemove = exitStorageOnRemove
 	end
 
-	function PLUGIN:safeboxOpenNut1_1_beta(storage, safeboxInvId, money)
+	function PLUGIN:safeboxOpenNut(storage, safeboxInvId, money)
 		self.curMoney = money
 
 		-- Number of pixels between the local inventory and storage inventory.
@@ -211,7 +212,7 @@ if (CLIENT) then
 
 		if ( not isnumber(safeboxInvId) ) then return end
 
-		-- Get the inventory for the player and storage.
+		-- Retrieve inventory and player inventories
 		local localInv =
 			LocalPlayer():getChar() and LocalPlayer():getChar():getInv()
 		local storageInv = nut.item.inventories[safeboxInvId]
@@ -219,7 +220,7 @@ if (CLIENT) then
 			return self:exitSafebox()
 		end
 
-		-- Show both the storage and inventory.
+		-- Show both the storage and player inventories.
 		local localInvPanel = localInv:show()
 		local storageInvPanel = storageInv:show()
 		storageInvPanel:SetTitle("Safebox")
@@ -283,18 +284,18 @@ if (CLIENT) then
 		PLUGIN.widthdrawButton:SetText(L"safeboxWithdraw")
 		PLUGIN.widthdrawButton.DoClick = widthdrawMoney
 
-		-- Allow the inventory panels to close.
+		-- Allow the inventory panels to be closed
 		localInvPanel:ShowCloseButton(true)
 		storageInvPanel:ShowCloseButton(true)
 
-		-- Put the two panels, side by side, in the middle.
+		-- Put the two panels, side by side, in the center
 		local extraWidth = (storageInvPanel:GetWide() + PADDING) / 2
 		localInvPanel:Center()
 		storageInvPanel:Center()
 		localInvPanel.x = localInvPanel.x + extraWidth
 		storageInvPanel:MoveLeftOf(localInvPanel, PADDING)
 
-		-- Signal that the user left the inventory if either closes.
+		-- Tell the server if the panels get closed
 		local firstToRemove = true
 		localInvPanel.oldOnRemove = localInvPanel.OnRemove
 		storageInvPanel.oldOnRemove = storageInvPanel.OnRemove
@@ -317,8 +318,8 @@ if (CLIENT) then
 	end
 
 	function PLUGIN:SafeboxOpen(storage, safeboxInvId, money)
-		if (nut.version == "2.0") then
-			self:safeboxOpenNut1_1_beta(storage, safeboxInvId, money)
+		if ( nut.version ) then 
+			self:safeboxOpenNut(storage, safeboxInvId, money)
 		else
 			self:safeboxOpenNut1_1(storage, safeboxInvId, money)
 		end

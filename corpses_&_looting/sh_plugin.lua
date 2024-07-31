@@ -1,6 +1,6 @@
 PLUGIN.name = "Looting"
-PLUGIN.author = "github.com/John1344"
-PLUGIN.desc = "Allows to search players corpses."
+PLUGIN.author = "Abel Witz with code from Chessnut"
+PLUGIN.desc = "Allows to search player corpses"
 PLUGIN.corpseMaxDist = 80
 
 -- Includes

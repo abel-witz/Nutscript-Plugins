@@ -1,11 +1,12 @@
+LockpickingPlugin = LockpickingPlugin or PLUGIN
+
 PLUGIN.name = "Lockpicking"
-PLUGIN.author = "github.com/John1344"
+PLUGIN.author = "Abel Witz"
 PLUGIN.desc = "Allows to pick locks with bobby pins"
 
-
-PLUGIN.CONFIG = {
-    UnlockSize = 4,
-    WeakSize = 40,
+PLUGIN.Config = {
+    UnlockSize = 1,
+    WeakSize = 20,
     UnlockMaxAngle = -90,
     HardMaxAngle = -30,
     TurningSpeed = 90,
@@ -17,12 +18,12 @@ PLUGIN.CONFIG = {
 
 
 -- Lockpick stop messages
-PLUGIN.STOP_AFK = 1
-PLUGIN.STOP_FAR = 2
+PLUGIN.StopAfk = 1
+PLUGIN.StopTooFar = 2
 
 PLUGIN.Messages = {
-	"lpAfk",
-	"lpTooFar"
+	"lockpickingAfk",
+	"lockpickingTooFar"
 }
 
 function PLUGIN:GetEntityLookedAt(player, maxDistance)
@@ -34,10 +35,9 @@ function PLUGIN:GetEntityLookedAt(player, maxDistance)
     return util.TraceLine(data).Entity
 end
 
-nut.util.include("sv_plugin.lua")
-nut.util.include("cl_plugin.lua")
+nut.util.include("sv_sessions.lua")
+nut.util.include("cl_session.lua")
 
 nut.util.include("ui/cl_interface.lua")
-nut.util.include("ui/cl_lp_interface.lua")
-nut.util.include("ui/basic/cl_button.lua")
-nut.util.include("ui/basic/cl_label.lua")
+nut.util.include("ui/cl_button.lua")
+nut.util.include("ui/cl_label.lua")

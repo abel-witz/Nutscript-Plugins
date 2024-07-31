@@ -1,5 +1,5 @@
 PLUGIN.name = "Disallow item taking"
-PLUGIN.author = "github.com/John1344"
+PLUGIN.author = "Abel Witz"
 PLUGIN.desc = "Adds /disallowitemtaking command"
 
 nut.command.add("disallowitemtaking", {

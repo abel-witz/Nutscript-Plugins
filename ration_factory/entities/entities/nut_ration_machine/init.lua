@@ -1,8 +1,3 @@
-local PLUGIN = PLUGIN or nut.plugin.list.ration_factory -- Please don't rename plugin folder else PLUGIN variable will be nil in NS beta
-if (!PLUGIN) then
-	ErrorNoHalt( 'ration_factory plugin directory may have been changed and thus it causes lua errors. Please name it "ration_factory"\n' )
-end
-
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "shared.lua" )
 include('shared.lua')
@@ -24,7 +19,7 @@ function ENT:Use(activator, client)
     if (!char) then return end
     
     if ( char:getInv():hasItem("plastic_bag") ) then
-        client:setAction("@producingRation", PLUGIN.PRODUCE_TIME)
+        client:setAction("@producingRation", RationFactoryPlugin.PRODUCE_TIME)
 		client:doStaredAction(self, function() 
 
 			if ( char ) then
@@ -58,7 +53,7 @@ function ENT:Use(activator, client)
                 end
 			end
 
-		end, PLUGIN.PRODUCE_TIME, function()
+		end, RationFactoryPlugin.PRODUCE_TIME, function()
 
 			if ( IsValid(client) ) then
 				client:setAction()

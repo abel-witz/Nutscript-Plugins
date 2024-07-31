@@ -1,73 +1,69 @@
-resource.AddWorkshop( "2318212263" ) -- NS Lockpicking Content
-
 local PLUGIN = PLUGIN
 
--------------------------------
---[[ START / STOP SESSIONS ]]--
--------------------------------
-PLUGIN.Sessions = PLUGIN.Sessions or {}
+----------------------------------
+--[[ Create / Delete sessions ]]--
+----------------------------------
+PLUGIN.ServerSessions = PLUGIN.ServerSessions or {}
 
-function PLUGIN:StartSession(door, ply, item)
-	local s = setmetatable({}, self.SessionClass)
+function PLUGIN:StartServerSession(door, client, item)
+	local session = setmetatable({}, self.ServerSessionClass)
 
-	s:Link(door, ply, item)
-	self.Sessions[s] = true
-	s:StartingAction()
+	session:Link(door, client, item)
+	self.ServerSessions[session] = true
+	session:StartingAction()
 	
-    return s
+    return session
 end
 
-function PLUGIN:StopSession(s)
-    s:Unlink()
-    self.Sessions[s] = nil
-    s = nil
+function PLUGIN:StopServerSession(session)
+    session:Unlink()
+    self.ServerSessions[session] = nil
+    session = nil
 end
 
 
-
------------------------
---[[ SESSION CLASS ]]--
------------------------
-local Class = PLUGIN.SessionClass or {}
+------------------------------
+--[[ Server session class ]]--
+------------------------------
+local Class = PLUGIN.ServerSessionClass or {}
 Class.__index = Class
 Class.Sounds = {}
-Class.LockAngle = 0
+Class.InnerLockAngle = 0
 Class.PinAngle = 0
 Class.Freeze = true
 
 
 -- Link the session instance to the concerned objects (item, entity, player)
-function Class:Link(door, ply, item)
+function Class:Link(door, client, item)
     self.Door = door
-	self.Player = ply
+	self.Player = client
     self.Item = item
-    ply.LockpickSession = self
-    door.LockpickSession = self
-    item.LockpickSession = self
+    client.LockpickingSession = self
+    door.LockpickingSession = self
+    item.LockpickingSession = self
 end
 
 -- Unink the session instance from the concerned objects (item, entity, player)
 function Class:Unlink()
     local door = self.Door
     if ( IsValid(door) ) then
-        door.LockpickSession = nil
+        door.LockpickingSession = nil
     end
 
-    local ply = self.Player
-    if ( IsValid(ply) ) then
-        ply.LockpickSession = nil
+    local client = self.Player
+    if ( IsValid(client) ) then
+        client.LockpickingSession = nil
     end
 
     local item = self.Item
     if ( item ) then
-        item.LockpickSession = nil
+        item.LockpickingSession = nil
     end
 end
 
-
 -- Start the lockpicking session
 function Class:Start()
-	local cfg = PLUGIN.CONFIG
+	local cfg = PLUGIN.Config
 
 	-- Generate unlock zone
 	self.UnlockCenter = math.random(-180, 180)
@@ -78,30 +74,30 @@ function Class:Start()
 	
 	self.Freeze = false
 	self.LastActivity = CurTime()
-	netstream.Start(ply, "lpStart", self.Item:getID())
+	netstream.Start(client, "lockpickingStart", self.Item:getID())
 end
 
 -- Stop the lockpicking session
 function Class:Stop(share, msg)
-    local cfg = PLUGIN.CONFIG
-	local ply = self.Player
+    local cfg = PLUGIN.Config
+	local client = self.Player
 	local item = self.Item
 
-	if ( self.ChangingPin ) then ply:setAction() end -- Stop bobbypin changing action
+	if ( self.ChangingPin ) then client:setAction() end -- Stop bobbypin changing action
 	self:StopSound("tension")
-	timer.Remove("lpEnterSound")
+	timer.Remove("lockpickingEnterSound")
 	self:StopSound("enter")
 
 	-- Unfreeze player and restore his old weapon after the ScreenFade is done
 	timer.Simple(cfg.FadeTime,function()
-		ply:SelectWeapon(self.OldWep)
+		client:SelectWeapon(self.OldWep)
 		timer.Simple(0.1, function()
-			ply:setWepRaised(self.OldWepRaise)
+			client:setWepRaised(self.OldWepRaise)
 		end)
 	end)
 	
 	if ( share ) then
-		netstream.Start(ply, "lpStop", msg) -- Tell the client to stop the interface
+		netstream.Start(client, "lockpickingStop", msg) -- Tell the client to stop the interface
 	end
 
 	-- Share rounded bobbypin health to client
@@ -109,68 +105,68 @@ function Class:Stop(share, msg)
 	item:setData("health", math.Round(oldHealth))
 	item:setData("health", oldHealth, false)
 	
-	PLUGIN:StopSession(self)
+	PLUGIN:StopServerSession(self)
 end
 
 local function netLag(player)
 	return player:Ping() / 2000
 end
 
--- Stared action that will start the lockpicking
+-- Insert bobbypin
 function Class:StartingAction()
-    local cfg = PLUGIN.CONFIG
-	local ply = self.Player
+    local cfg = PLUGIN.Config
+	local client = self.Player
 	local door = self.Door
 
-		local wep = ply:GetActiveWeapon()
+		local wep = client:GetActiveWeapon()
 		if (IsValid(wep)) then
 			self.OldWep = wep:GetClass()
 		end
-		self.OldWepRaise = ply:isWepRaised()
-		ply:SelectWeapon( "nut_hands" )
+		self.OldWepRaise = client:isWepRaised()
+		client:SelectWeapon( "nut_hands" )
 
-	local time = math.max(0.1 * (30 - ply:getChar():getAttrib("lockpick", 0)), 1.2)
-	ply:setAction("@lpStarting", time)
-	ply:doStaredAction(door, function()
-		if (IsValid(ply)) then
+	local time = 1.2
+	client:setAction("@lockpickingStarting", time)
+	client:doStaredAction(door, function()
+		if (IsValid(client)) then
             self:Start()
-			ply:setAction()
+			client:setAction()
 		end
 	end, time, function()
-		if (IsValid(ply)) then
-			ply:setAction()
+		if (IsValid(client)) then
+			client:setAction()
 		end
 
-		netstream.Start(ply, "lpStarting", false)
-        PLUGIN:StopSession(self)
+		netstream.Start(client, "lockpickingStarting", false)
+        PLUGIN:StopServerSession(self)
 	end, cfg.MaxLookDistance)
 
-	timer.Create("lpEnterSound", time - 1, 1, function()
+	timer.Create("lockpickingEnterSound", time - 1, 1, function()
 		self:PlaySound("lockpicking/enter.wav", 50, 1, "enter")
 	end)
 
-	netstream.Start(ply, "lpStarting", true, time - netLag(ply))
+	netstream.Start(client, "lockpickingStarting", true, time - netLag(client))
 end
 
 
--- Stared action that will load another bobbypin
+-- Change bobbypin
 function Class:ChangePinAction()
-	local ply = self.Player
+	local client = self.Player
 
 	self.RotatingLock = false
 	self.ChangingPin = true
 
-	local time = math.max(0.07 * (30 - ply:getChar():getAttrib("lockpick", 0)), 1.2)
-	timer.Create("lpEnterSound", time - 1, 1, function()
+	local time = 1.2
+	timer.Create("lockpickingEnterSound", time - 1, 1, function()
 		self:PlaySound("lockpicking/enter.wav", 50, 1, "enter")
 	end)
 
-	ply:setAction("@lpChange", time, function()
+	client:setAction("@lockpickingChange", time, function()
 		self.ChangingPin = false
 		self.Freeze = false
 	end)
 
-	netstream.Start(ply, "lpChange", time - netLag(ply))
+	netstream.Start(client, "lockpickingChange", time - netLag(client))
 end
 
 
@@ -232,18 +228,18 @@ function Class:Fail()
 	self:PlaySound("lockpicking/pickbreak_"..math.random(3)..".wav", 50, 1)
 	
 	-- Reinsert another bobbypin
-	if (self.Item:BreakPin()) then
+	if (self.Item:PinBreak()) then
 		self:ChangePinAction()
 	else
 		self:Stop()
-		netstream.Start(self.Player, "lpFail")
+		netstream.Start(self.Player, "lockpickingFail")
 	end
 end
 
 
 -- Divide an angle to send it little by little to the client ( avoid cheating, the client need to wait while rotating the lock to know the angle limit )
 function Class:MakeShareTable(maxAng)
-	local cfg = PLUGIN.CONFIG
+	local cfg = PLUGIN.Config
 
 	self.ShareTable = {}
 	local tbl = self.ShareTable
@@ -266,13 +262,13 @@ end
 
 -- Send an angle little by little ( avoid cheating, the client need to wait while rotating the lock to know the angle limit )
 function Class:ShareAngle(maxAng)
-	local cfg = PLUGIN.CONFIG
+	local cfg = PLUGIN.Config
 	local tbl = self.ShareTable
 
 	if (not tbl or tbl.Done) then return end
 
-	local ply = self.Player
-	local latency = netLag(ply)
+	local client = self.Player
+	local latency = netLag(client)
 
 	local angAmount = tbl.AngAmount
 
@@ -281,13 +277,13 @@ function Class:ShareAngle(maxAng)
 
 		if (not ang.Sent) then
 			local realAng = tbl[i].RealAng
-			local curAng = self.LockAngle
+			local curAng = self.InnerLockAngle
 			local limit = math.min(realAng + 30, 0)
 
 			if (math.abs((limit - curAng) / cfg.TurningSpeed) - 0.12 > latency) then
 				ang.Sent = true
 				ang.SendTime = SysTime()
-				netstream.Start(ply, "lpMax", self.PinAngle, realAng)
+				netstream.Start(client, "lockpickingMax", self.PinAngle, realAng)
 
 				if (i == angAmount) then
 					tbl.Done = true
@@ -299,14 +295,15 @@ function Class:ShareAngle(maxAng)
 	end
 end
 
--- Know the ang that have the client ( Set the angle limit to the current client angle )
+-- Know the angle that have the client ( Sets the angle limit to the current client angle )
 function Class:GetClientMaxAng()
-	local cfg = PLUGIN.CONFIG
+	local cfg = PLUGIN.Config
 	local tbl = self.ShareTable
+	PrintTable(tbl)
 
 	if (tbl) then
-		local ply = self.Player
-		local latency = netLag(ply)
+		local client = self.Player
+		local latency = netLag(client)
 
 		local angAmount = tbl.AngAmount
 		for i=angAmount or 0, 1, -1 do
@@ -354,8 +351,8 @@ function Class:GetLockZone()
 end
 
 
-function Class:GetMaxLockAngle(zone)
-	local cfg = PLUGIN.CONFIG
+function Class:GetMaxInnerLockAngle(zone)
+	local cfg = PLUGIN.Config
 
 	if (zone == ZONE_UNLOCK) then
 		return cfg.UnlockMaxAngle
@@ -371,18 +368,18 @@ end
 
 -- Rotate hook
 function Class:RotateLock(state, pickAng)
-	local cfg = PLUGIN.CONFIG
-	local ply = self.Player
-	local latency = netLag(ply)
+	local cfg = PLUGIN.Config
+	local client = self.Player
+	local latency = netLag(client)
 	local time = CurTime()
 
 	if (state and not self.ChangingPin) then
-		if (pickAng and self.LockAngle == 0) then
+		if (pickAng and self.InnerLockAngle == 0) then
 			
 			self.PinAngle = pickAng
 
 			local zone = self:GetLockZone()
-			local maxAng = self:GetMaxLockAngle(zone)
+			local maxAng = self:GetMaxInnerLockAngle(zone)
 
 			if (not self.OldPinAngle or (self.OldPinAngle ~= self.PinAngle)) then
 				self:MakeShareTable(maxAng)
@@ -390,9 +387,9 @@ function Class:RotateLock(state, pickAng)
 			self.OldPinAngle = pickAng
 
 			local ang, isLastAng = self:GetClientMaxAng()
-			self.LockAngle = math.max(latency * -cfg.TurningSpeed, ang)
+			self.InnerLockAngle = math.max(latency * -cfg.TurningSpeed, ang)
 
-			-- Avoid spamming requests to know the unlock angle
+			-- Avoid spamming requests of the unlock angle
 			if (self.LastRotating and (time - self.LastRotating < cfg.SpamTime)) then
 				self:Stop()
 				return
@@ -402,7 +399,7 @@ function Class:RotateLock(state, pickAng)
 			self.RotatingLock = true
 		end
 	else
-		self.LockAngle = math.min(self.LockAngle + (latency * cfg.ReleasingSpeed), 0)
+		self.InnerLockAngle = math.min(self.InnerLockAngle + (latency * cfg.ReleasingSpeed), 0)
 		self.RotatingLock = false
 	end
 
@@ -413,26 +410,26 @@ end
 
 -- Check that we can continue to lockpick
 function Class:StopCheck()
-	local cfg = PLUGIN.CONFIG
-	local ply = self.Player
+	local cfg = PLUGIN.Config
+	local client = self.Player
 	local door = self.Door
 	local time = CurTime()
 	
-	if ( not ( IsValid(ply) and IsValid(door) and self.Item ) ) then
+	if ( not ( IsValid(client) and IsValid(door) and self.Item ) ) then
 		self:Stop()
 		return
 	end
 
 	-- Avoid afk
 	if ( (time - self.LastActivity) > 20 ) then
-        self:Stop(true, PLUGIN.STOP_AFK)
+        self:Stop(true, PLUGIN.StopAfk)
 		return
 	end
 
 	-- Check that the player is looking the door and near from it
 	if ( time > (self.NextDistCheck or 0) ) then
-		if (PLUGIN:GetEntityLookedAt(ply, cfg.MaxLookDistance) ~= door) then
-            self:Stop(true, PLUGIN.STOP_FAR)
+		if (PLUGIN:GetEntityLookedAt(client, cfg.MaxLookDistance) ~= door) then
+            self:Stop(true, PLUGIN.StopTooFar)
             return
 		end
 
@@ -441,23 +438,23 @@ function Class:StopCheck()
 end
 
 function Class:Think()
-	local cfg = PLUGIN.CONFIG
+	local cfg = PLUGIN.Config
 
 	self:StopCheck()
 
 	-- Send max angle little by little to the player
 	local zone = self:GetLockZone()
-	self:ShareAngle( self:GetMaxLockAngle(zone) )
+	self:ShareAngle( self:GetMaxInnerLockAngle(zone) )
 
-	local curMaxLockAngle, isLastAng = self:GetClientMaxAng()
+	local curMaxInnerLockAngle, isLastAng = self:GetClientMaxAng()
 	local exceedMax
 	
 	if (self.RotatingLock and not self.ChangingPin) then
-		self.LockAngle = self.LockAngle - cfg.TurningSpeed * FrameTime()
+		self.InnerLockAngle = self.InnerLockAngle - cfg.TurningSpeed * FrameTime()
 		
 		-- Check if the lock is forced
-        if (self.LockAngle < curMaxLockAngle) then
-            self.LockAngle = curMaxLockAngle
+        if (self.InnerLockAngle < curMaxInnerLockAngle) then
+            self.InnerLockAngle = curMaxInnerLockAngle
 
 			exceedMax = true
 		end
@@ -470,8 +467,8 @@ function Class:Think()
 		end
 		
 	else
-		self.LockAngle = self.LockAngle + ( cfg.ReleasingSpeed * FrameTime())
-		self.LockAngle = math.min(self.LockAngle, 0)
+		self.InnerLockAngle = self.InnerLockAngle + ( cfg.ReleasingSpeed * FrameTime())
+		self.InnerLockAngle = math.min(self.InnerLockAngle, 0)
 		self.CylinderTurned = false
 
 		self:StopSound("cylinder")
@@ -479,7 +476,7 @@ function Class:Think()
 	end
 
 	if (exceedMax) then
-        if (self.AskingSuccess and self.LockAngle == cfg.UnlockMaxAngle) then
+        if (self.AskingSuccess and self.InnerLockAngle == cfg.UnlockMaxAngle) then
             self:Success()
 		else
 			if ( not self.CylinderStopped ) then
@@ -493,7 +490,7 @@ function Class:Think()
 			if ((SysTime() - self.HoldTime > (netLag(self.Player)) + 0.1)) then
 				local item = self.Item
 
-				local newHealth = item:getData("health", 100) - (65 / item.solidity) * FrameTime()
+				local newHealth = item:getData("health", 100) - 65 * FrameTime()
 				item:setData("health", newHealth, false)
 
 				if (newHealth <= 0) then
@@ -510,100 +507,102 @@ function Class:Think()
 end
 
 
-PLUGIN.SessionClass = Class
+PLUGIN.ServerSessionClass = Class
 
 
 
 ---------------------
---[[ NETWORKING ]]---
+--[[ Networking ]]---
 ---------------------
-netstream.Hook("lpRotat", function(ply, state, pickAng)
-	local s = ply.LockpickSession
+netstream.Hook("lockpickingRotate", function(client, state, pickAng)
+	local session = client.LockpickingSession
 
-	if ( s ) then
-		s:RotateLock(state, pickAng)
+	if ( session ) then
+		session:RotateLock(state, pickAng)
 	end
 end)
 
 
-netstream.Hook("lpStop", function(ply)
-	local s = ply.LockpickSession
+netstream.Hook("lockpickingStop", function(client)
+	local session = client.LockpickingSession
 
-	if (s) then
-		s:Stop()
+	if (session) then
+		session:Stop()
 	end
 end)
 
 
-netstream.Hook("lpSuccess", function(ply)
-	local s = ply.LockpickSession
+netstream.Hook("lockpickingSuccess", function(client)
+	local session = client.LockpickingSession
 
-	if (s) then
-		s.AskingSuccess = true
+	if (session) then
+		session.AskingSuccess = true
 	end
 end)
 
 
 
 ----------------
---[[ HOOKS ]]---
+--[[ Hooks ]]---
 ----------------
 function PLUGIN:Think()
-	for s, _ in pairs(self.Sessions) do
-		if ( s.Freeze ) then return end
-		s:Think()
+	for session, _ in pairs(self.ServerSessions) do
+		if ( session.Freeze ) then return end
+		session:Think()
 	end
 end
 
 
 local allowCommand
-function PLUGIN:StartCommand(ply, cmd)
-	if ( not allowCommand and ply.LockpickFreeze ) then
+function PLUGIN:StartCommand(client, cmd)
+	if ( not allowCommand and client.LockpickFreeze ) then
         cmd:SetButtons(0)
     end
 
     allowCommand = false
 end
 
-function PLUGIN:Move(ply, mvd)
-    if ( ply.LockpickSession ) then
+function PLUGIN:Move(client, mvd)
+    if ( client.LockpickingSession ) then
         return true
     end
 end
 
-function PLUGIN:PlayerSwitchWeapon(ply, oldWep, newWep)
+function PLUGIN:PlayerSwitchWeapon(client, oldWep, newWep)
     local allowCommand = (newWep:GetClass() == "nut_hands")
 
-	if ( not allowCommand and ply.LockpickSession ) then
+	if ( not allowCommand and client.LockpickingSession ) then
         return true
     end
 end
 
 
 
----------------------
---[[ STOP HOOKS ]]---
----------------------
+--------------------------------------------
+--[[ Events that must stop lockpicking ]]---
+--------------------------------------------
 function PLUGIN:EntityRemoved(ent)
-    local s = ent.LockpickSession
+    local session = ent.LockpickingSession
 
-	if (s) then
-        s:Stop()
+	if (session) then
+        session:Stop()
 	end
 end
 
-function PLUGIN:PlayerDeath(ply, inflictor, attacker)
-    local s = ply.LockpickSession
+function PLUGIN:PlayerDeath(client, inflictor, attacker)
+    local session = client.LockpickingSession
 
-	if (s) then
-        s:Stop()
+	if (session) then
+        session:Stop()
 	end
 end
 
-function PLUGIN:PlayerDisconnected(ply)
-    local s = ply.LockpickSession
+function PLUGIN:PlayerDisconnected(client)
+    local session = client.LockpickingSession
 
-	if (s) then
-        s:Stop()
+	if (session) then
+        session:Stop()
 	end
 end
+
+resource.AddWorkshop( "2318212263" ) -- NS Lockpicking Content

@@ -3,8 +3,10 @@ if (!PLUGIN) then
 	ErrorNoHalt( 'bags_with_clothing plugin directory may have been changed and thus it causes lua errors. Please name it "bags_with_clothing"\n' )
 end
 
-if (nut.version == "2.0") then
-	-- Nutscript 1.1 beta
+local SOUND_BAG_RESPONSE = {"physics/cardboard/cardboard_box_impact_soft2.wav", 50}
+
+if (nut.version) then
+	-- Nutscript 1.1 beta and 1.2
 	local INVENTORY_TYPE_ID = "grid"
 
 	ITEM.name = "Bag"
@@ -64,7 +66,7 @@ if (nut.version == "2.0") then
 				self:resolveInvAwaiters(inventory)
 			end)
 
-		-- Determine if the bag is in a player inventory if so bonemerge a backpack model
+		-- Determine if the bag is in a player inventory, if so bonemerge a backpack model
 		local owner = self:getOwner()
 
 		if (IsValid(owner) && owner:IsPlayer() && owner:getChar()) then
@@ -90,7 +92,7 @@ if (nut.version == "2.0") then
 			nut.inventory.deleteByID(invID)
 		end
 
-		-- Determine if the bag is in a player inventory if so bonemerge a backpack model
+		-- Determine if the bag is in a player inventory, if so bonemerge a backpack model
 		local owner = self:getOwner()
 
 		if (IsValid(owner) && owner:IsPlayer() && owner:getChar()) then
@@ -230,7 +232,7 @@ else
 			self:setData("id", inventory:getID())
 		end)
 
-		-- Determine if the bag is in a player inventory if so bonemerge a backpack model
+		-- Determine if the bag is in a player inventory, if so bonemerge a backpack model
 		local owner = self:getOwner()
 
 		if (IsValid(owner) && owner:IsPlayer() && owner:getChar()) then
@@ -301,7 +303,7 @@ else
 			nut.db.query("DELETE FROM nut_inventories WHERE _invID = "..index)
 		end
 
-		-- Determine if the bag is in a player inventory if so bonemerge a backpack model
+		-- Determine if the bag is in a player inventory, if so bonemerge a backpack model
 		local owner = self:getOwner()
 
 		if (IsValid(owner) && owner:IsPlayer() && owner:getChar()) then

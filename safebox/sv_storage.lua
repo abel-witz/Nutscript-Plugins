@@ -1,4 +1,4 @@
-local PLUGIN = PLUGIN
+local PLUGIN = SafeboxPlugin
 
 PLUGIN.charInventoryIDs = PLUGIN.charInventoryIDs or {}
 
@@ -50,7 +50,7 @@ function PLUGIN:LoadData()
 	self.loadedData = true
 end
 
--- 1.1 beta
+-- 1.1 beta and 1.2
 function PLUGIN:OnCharacterDelete(client, id)
 	local data = self.charInventoryIDs[id]
 	if (!data) then return end
@@ -76,7 +76,7 @@ function PLUGIN:OnCharDelete(client, id, CurrentChar)
 	self.charInventoryIDs[id] = nil
 end
 
---[[ Money management ]]--
+-- Money management 
 function PLUGIN:WidthdrawMoney(client, corpse, amount)
 	local data = self.charInventoryIDs[client:getChar():getID()]
 	if (!data) then return end

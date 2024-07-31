@@ -51,7 +51,7 @@ end
 function PLUGIN:OnPlayerInteractItem(client, action, item, result, data)
 	if (!item.bagUniqueID) then return end -- if its not a bag we don't care
 	
-	if (nut.version != "2.0" && action == "drop") then
+	if (not nut.version && action == "drop") then
 		netstream.Start(player.GetAll(), "ns_bagTakeOff", client)
 		PLUGIN.bagInstances[client] = nil
 	elseif (action == "take") then
@@ -62,6 +62,8 @@ end
 
 
 local function itemTransfered(itemObject, prevInv, nextInv)
+    if not itemObject.isBag then return end
+
     timer.Simple(0.25, function()
         if ( (itemObject && itemObject.invID == 0 && nextInv == nil) or (nextInv && itemObject && itemObject.invID == nextInv:getID()) ) then
             if (prevInv && ((prevInv.owner) or (prevInv.data && prevInv.data.char && nut.char.loaded[prevInv.data.char]))) then
@@ -90,7 +92,7 @@ function PLUGIN:OnItemTransfered(itemObject, prevInv, nextInv)
     itemTransfered(itemObject, prevInv, nextInv)
 end
 
--- Nut 1.1 beta 
+-- Nut 1.1 beta and 1.2
 function PLUGIN:CanItemBeTransfered(itemObject, prevInv, nextInv)
     itemTransfered(itemObject, prevInv, nextInv)
 end

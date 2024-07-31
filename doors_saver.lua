@@ -1,7 +1,7 @@
 
 local PLUGIN = PLUGIN
 PLUGIN.name = "Doors Saver"
-PLUGIN.author = "Taxin2012" -- Ported on NutScript by github.com/John1344
+PLUGIN.author = "Taxin2012" -- Ported from Helix to NutScript by Abel Witz
 PLUGIN.description = "Saves purchased by players doors."
 
 PLUGIN.DOORS_BUFFER = PLUGIN.DOORS_BUFFER or {}
@@ -100,23 +100,6 @@ if SERVER then
 	
 	function PLUGIN:SaveData()
 		self:SaveDoors()	
-	end
-
-	function PLUGIN:OnPlayerPurchaseDoor( ply, ent, isBuy )
-		--[[local char = ply:getChar()
-		if char then
-			local door_id = ent:MapCreationID()
-			if door_id then
-				if isBuy then
-					self.DOORS_BUFFER[ door_id ] = char:getID()
-				else
-					self.DOORS_BUFFER[ door_id ] = nil
-					self.DOORS_ACCESS_BUFFER[ door_id ] = nil
-				end
-			end
-		end
-
-		self:SaveDoors()--]]
 	end
 
 	function PLUGIN:PlayerLoadedChar( ply, curChar, prevChar )
