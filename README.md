@@ -1,14 +1,14 @@
-# NutScript Plugins
+# Plugins NutScript
 
-This repository contains a collection of plugins for the NutScript gamemode in Garry's Mod. These plugins have been fully or partially developed by me and are compatible with NutScript versions 1.1, 1.1 beta, and 1.2.
+Ce dépôt contient une collection de plugins pour le gamemode NutScript dans Garry's Mod. Ces plugins ont été entièrement ou partiellement développés par moi et sont compatibles avec les versions 1.1, 1.1 beta et 1.2 de NutScript.
 
 ## Plugin Descriptions
 
-- **bags_with_clothing** – Adds wearable bags that provide additional inventory space.
-- **corpses_looting** – Enables looting of items and currency from deceased characters.
-- **lockpicking** – Introduces bobby pins that can be used to lockpick closed doors.
-- **ration_factory** – Adds machines that produce food rations, which can be resold for money.
-- **safebox** – Secure storage boxes that allow players to store items and currency safely.
-- **charaddmoney** – Implements a command to add money to a character.
-- **disallow_item_taking** – Prevents specific items from being taken by players.
-- **doors_saver** – Makes door ownership permanent.
+- **bags_with_clothing** – Ajoute des sacs portables offrant un espace d'inventaire supplémentaire.
+- **corpses_looting** – Permet de piller les objets et la monnaie sur les personnages décédés.
+- **lockpicking** – Introduit des épingles permettant de crocheter les portes fermées.
+- **ration_factory** – Ajoute des machines qui produisent des rations alimentaires revendables contre de l'argent.
+- **safebox** – Boîtes de rangement sécurisées permettant aux joueurs de stocker des objets et de l'argent en toute sécurité.
+- **charaddmoney** – Implémente une commande pour ajouter de l'argent à un personnage.
+- **disallow_item_taking** – Empêche les joueurs de prendre certains objets spécifiques.
+- **doors_saver** – Rend la propriété des portes permanente.
