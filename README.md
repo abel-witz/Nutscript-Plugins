@@ -2,7 +2,7 @@
 
 [English](https://github.com/abel-witz/Nutscript-Plugins/blob/main/readme-en.md)
 
-Ce dépôt contient une collection de plugins pour le gamemode NutScript dans Garry's Mod. Ces plugins ont été entièrement ou partiellement développés par moi et sont compatibles avec les versions 1.1, 1.1 beta et 1.2 de NutScript.
+Ce dépôt contient une collection de plugins pour le mode de jeu NutScript dans Garry's Mod. Ces plugins ont été entièrement ou partiellement développés par moi et sont compatibles avec les versions 1.1, 1.1 beta et 1.2 de NutScript.
 
 ## Plugin Descriptions
 
