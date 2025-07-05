@@ -12,3 +12,5 @@ This repository contains a collection of plugins for the NutScript gamemode in G
 - **charaddmoney** – Implements a command to add money to a character.
 - **disallow_item_taking** – Prevents specific items from being taken by players.
 - **doors_saver** – Makes door ownership permanent.
+- **music_radio** - Adds a music radio
+- **tabs_hotkeys** - Open inventory by pressing F4
