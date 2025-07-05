@@ -14,3 +14,5 @@ Ce dépôt contient une collection de plugins pour le mode de jeu NutScript dans
 - **charaddmoney** – Implémente une commande pour ajouter de l'argent à un personnage.
 - **disallow_item_taking** – Empêche les joueurs de prendre certains objets spécifiques.
 - **doors_saver** – Rend la propriété des portes permanente.
+- **music_radio** - Ajoute une radio de musique
+- **tabs_hotkeys** - Permet d'ouvrir l'inventaire en appuyant sur F4
